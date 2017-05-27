@@ -9,11 +9,10 @@ repositories {
     mavenCentral()
 }
 
-def log4jVersion = '2.1'
+def log4jVersion = '2.8.2'
 
 dependencies {
     compileOnly "org.projectlombok:lombok:1.16.16"
-    compile "org.apache.logging.log4j:log4j-api:${log4jVersion}"
     compile "org.apache.logging.log4j:log4j-core:${log4jVersion}"
     compile "commons-cli:commons-cli:1.4"
 

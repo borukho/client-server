@@ -2,6 +2,8 @@ package ru.oxothuk.server;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.oxothuk.service.Service;
+import ru.oxothuk.service.SimpleService;
 
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +17,7 @@ public class Server {
 
     public Server(ServerConfiguration configuration) {
         this.configuration = configuration;
+        logger.info("Server configuration: {}", configuration);
         services = initServices();
     }
 
