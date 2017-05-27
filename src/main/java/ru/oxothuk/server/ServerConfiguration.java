@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import ru.oxothuk.service.ServiceConfiguration;
 
 import java.util.List;
 
@@ -12,7 +13,6 @@ import java.util.List;
 @Accessors(chain = true)
 @ToString
 public class ServerConfiguration {
-    private String host;
-    private Integer port;
+    private int port;
     private List<ServiceConfiguration> serviceConfigurations;
 }

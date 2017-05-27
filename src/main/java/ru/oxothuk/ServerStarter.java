@@ -5,7 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.oxothuk.server.Server;
 import ru.oxothuk.server.ServerConfiguration;
-import ru.oxothuk.server.ServiceConfiguration;
+import ru.oxothuk.service.ServiceConfiguration;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,7 +23,6 @@ public class ServerStarter {
         try {
             CommandLine commandLine = parseCommandLine(args, options);
             ServerConfiguration serverConfiguration = new ServerConfiguration()
-                .setHost(commandLine.getOptionValue("host", "localhost"))
                 .setPort(Integer.parseInt(commandLine.getOptionValue("port")))
                 .setServiceConfigurations(loadServiceConfigurations(commandLine.getOptionValue("services-config")));
             new Server(serverConfiguration).start();
@@ -40,10 +39,6 @@ public class ServerStarter {
         options.addOption(Option.builder().longOpt("port").required()
             .hasArg().argName("port").type(Integer.class)
             .desc("server port")
-            .build());
-        options.addOption(Option.builder().longOpt("host")
-            .hasArg().argName("hostname")
-            .desc("server host")
             .build());
         options.addOption(Option.builder().longOpt("services-config").required()
             .hasArg().argName("file")
