@@ -14,8 +14,8 @@ public class ServerStarter {
         logger.info("Starting server");
         try {
             ServerConfiguration serverConfiguration = new ServerConfiguration()
-                    .loadFromCommandLineArguments(args)
-                    .loadFromProperties(System.getProperty("server.configuration", "server.properties"));
+                .loadFromCommandLineArguments(args)
+                .loadFromProperties(System.getProperty("server.configuration", "server.properties"));
             new Server(serverConfiguration).start();
         } catch (CommandLineArgumentsConfigurationException e) {
             logger.error("invalid command line argument");

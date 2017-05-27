@@ -2,13 +2,13 @@ package ru.oxothuk.server;
 
 import lombok.Getter;
 
-import java.util.Map;
+import java.util.List;
 
 @Getter
 public class ServerConfiguration {
     private String host;
     private int port;
-    private Map<String, Service> services;
+    private List<ServiceConfiguration> serviceConfigurations;
 
     public ServerConfiguration loadFromCommandLineArguments(String... args) throws CommandLineArgumentsConfigurationException {
         //todo load configuration from command line arguments
