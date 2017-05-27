@@ -4,49 +4,40 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.oxothuk.client.Request;
 import ru.oxothuk.client.Response;
-import ru.oxothuk.service.Service;
-import ru.oxothuk.service.ServiceLocator;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Optional;
 
-public class ClientHandler implements Runnable {
+public class ClientHandler implements Runnable, ResponseCallback {
     private static Logger logger = LogManager.getLogger(ClientHandler.class);
     private Socket socket;
-    private ServiceLocator serviceLocator;
+    private ServiceCaller serviceCaller;
 
-    public ClientHandler(Socket socket, ServiceLocator serviceLocator) {
+    public ClientHandler(Socket socket, ServiceCaller serviceCaller) {
         this.socket = socket;
-        this.serviceLocator = serviceLocator;
+        this.serviceCaller = serviceCaller;
     }
 
     @Override
     public void run() {
         try {
-            logger.info("handling client request from " + socket.getInetAddress());
-            Optional<Request> optionalRequest = readRequest();
-            if (optionalRequest.isPresent()) {
-                handleRequest(optionalRequest.get());
+            logger.info("handling client session from " + socket.getInetAddress());
+            boolean endOfSession = false;
+            while (!endOfSession) {
+                Optional<Request> request = readRequest();
+                logger.info("handling client request");
+                if (request.isPresent()) {
+                    serviceCaller.call(request.get(), this);
+                } else {
+                    endOfSession = true;
+                }
             }
-            //todo handle requests in thread pool
-        } catch (IOException e) {
-            logger.warn("Error processing client request", e);
         } finally {
-            logger.info("request handling completed");
+            logger.info("session with {} completed", socket.getInetAddress());
             close(socket);
-        }
-
-    }
-
-    private void handleRequest(Request request) throws IOException {
-        logger.info("handling request: " + request);
-        Optional<Service> service = serviceLocator.getServiceByName(request.getServiceName());
-        if (!service.isPresent()) {
-            error("service " + request.getServiceName() + " not found");
-        } else {
-            Response response = processServiceCall(service.get(), request.getMethodName(), request.getParameters());
-            writeResponse(response);
         }
     }
 
@@ -63,19 +54,15 @@ public class ClientHandler implements Runnable {
         return Optional.empty();
     }
 
-    private void writeResponse(Response response) throws IOException {
-        ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-        outputStream.writeObject(response);
-        outputStream.flush();
-    }
-
-    private void error(String message) {
-        logger.warn(message);
-    }
-
-    private Response processServiceCall(Service service, String methodName, Object[] parameters) {
-        //todo service call
-        return new Response().setSuccess(true);
+    @Override
+    public void callback(Response response) {
+        try {
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+            outputStream.writeObject(response);
+            outputStream.flush();
+        } catch (IOException e) {
+            logger.warn("error writing response", e);
+        }
     }
 
     private void close(Socket socket) {

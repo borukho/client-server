@@ -21,6 +21,7 @@ public class Server implements ServiceLocator {
     private Map<String, Service> services;
     private AtomicInteger counter = new AtomicInteger();
     private boolean stop;
+    private ServiceCaller serviceCaller = new ServiceCaller(this);
 
     public Server(ServerConfiguration configuration) {
         this.configuration = configuration;
@@ -29,14 +30,17 @@ public class Server implements ServiceLocator {
     }
 
     public void start() throws IOException {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> stop = true, "shutdown-hook"));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            serviceCaller.shutdown();
+            stop = true;
+        }, "shutdown-hook"));
         Integer port = configuration.getPort();
         logger.info("Listening on port {}", port);
         ServerSocket serverSocket = new ServerSocket(port);
         while (!stop) {
             Socket socket = serverSocket.accept();
             String handlerName = "client-handler-" + counter.incrementAndGet();
-            Thread thread = new Thread(new ClientHandler(socket, this), handlerName);
+            Thread thread = new Thread(new ClientHandler(socket, serviceCaller), handlerName);
             thread.start();
         }
     }
