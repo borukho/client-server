@@ -13,6 +13,10 @@ public class ServerStarter {
     public static void main(String... args) {
         logger.info("Starting server");
         try {
+            if (args.length > 0 && "--help".equals(args[0])) {
+                printCommandLineArgumentsHelp();
+                System.exit(0);
+            }
             ServerConfiguration serverConfiguration = new ServerConfiguration()
                 .loadFromCommandLineArguments(args)
                 .loadFromProperties(System.getProperty("server.configuration", "server.properties"));
