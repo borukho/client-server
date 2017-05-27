@@ -9,7 +9,6 @@ import ru.oxothuk.service.ServiceLocator;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.List;
 import java.util.Optional;
 
 public class ClientHandler implements Runnable {
@@ -74,7 +73,7 @@ public class ClientHandler implements Runnable {
         logger.warn(message);
     }
 
-    private Response processServiceCall(Service service, String methodName, List<Object> parameters) {
+    private Response processServiceCall(Service service, String methodName, Object[] parameters) {
         //todo service call
         return new Response().setSuccess(true);
     }
