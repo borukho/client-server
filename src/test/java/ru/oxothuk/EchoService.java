@@ -7,4 +7,8 @@ public class EchoService {
     public String echo(String message) {
         return message;
     }
+
+    public void log(String message) {
+        System.out.println(message);
+    }
 }

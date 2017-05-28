@@ -47,7 +47,7 @@ public class Client implements AutoCloseable {
             Object o = inputStream.readObject();
             if (o instanceof Response) {
                 Response response = (Response) o;
-                if (response.getSuccess() == null || !response.getSuccess()) {
+                if (!response.isSuccess()) {
                     logger.info("response: {}", response);
                     Throwable cause = response.getException();
                     if (cause != null) {

@@ -4,6 +4,7 @@ import org.junit.*;
 import org.junit.rules.ExpectedException;
 import ru.oxothuk.client.Client;
 import ru.oxothuk.client.ClientException;
+import ru.oxothuk.client.VoidResult;
 import ru.oxothuk.server.Server;
 import ru.oxothuk.server.ServerConfiguration;
 import ru.oxothuk.service.ServiceConfiguration;
@@ -20,7 +21,8 @@ import static org.junit.Assert.assertThat;
 public class IntegrationTest {
     private static final int PORT = 9119;
     private static final String SERVICE_NAME = "echoService";
-    private static final String SERVICE_METHOD = "echo";
+    private static final String ECHO = "echo";
+    private static final String LOG = "log";
 
     private static Server server;
 
@@ -49,7 +51,7 @@ public class IntegrationTest {
     public void testSingleRequest() throws Exception {
         Object result;
         try (Client client = new Client("localhost", PORT)) {
-            result = client.remoteCall(SERVICE_NAME, SERVICE_METHOD, new Object[]{"hello"});
+            result = client.remoteCall(SERVICE_NAME, ECHO, new Object[]{"hello"});
         }
 
         assertThat(result, is(equalTo("hello")));
@@ -66,7 +68,7 @@ public class IntegrationTest {
                 String id = "client-" + i;
                 Thread thread = new Thread(() -> {
                     try {
-                        results.put(id, client.remoteCall(SERVICE_NAME, SERVICE_METHOD, new Object[]{id}));
+                        results.put(id, client.remoteCall(SERVICE_NAME, ECHO, new Object[]{id}));
                     } catch (ClientException e) {
                         throw new RuntimeException(e);
                     } finally {
@@ -92,7 +94,7 @@ public class IntegrationTest {
         ));
 
         try (Client client = new Client("localhost", PORT)) {
-            client.remoteCall("no-service", SERVICE_METHOD, new Object[]{"hello"});
+            client.remoteCall("no-service", ECHO, new Object[]{"hello"});
         }
     }
 
@@ -116,7 +118,17 @@ public class IntegrationTest {
         ));
 
         try (Client client = new Client("localhost", PORT)) {
-            client.remoteCall(SERVICE_NAME, SERVICE_METHOD, new Object[]{"hello", "world"});
+            client.remoteCall(SERVICE_NAME, ECHO, new Object[]{"hello", "world"});
         }
+    }
+
+    @Test
+    public void testVoidMethodCall() throws Exception {
+        Object result;
+        try (Client client = new Client("localhost", PORT)) {
+            result = client.remoteCall(SERVICE_NAME, LOG, new Object[]{"hello"});
+        }
+
+        assertThat(result, is(instanceOf(VoidResult.class)));
     }
 }

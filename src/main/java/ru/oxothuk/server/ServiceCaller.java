@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.oxothuk.client.Request;
 import ru.oxothuk.client.Response;
+import ru.oxothuk.client.VoidResponse;
 import ru.oxothuk.service.Service;
 import ru.oxothuk.service.ServiceLocator;
 
@@ -38,11 +39,7 @@ class ServiceCaller {
             executor.submit(() -> {
                 Response response;
                 try {
-                    Object result = processServiceCall(service.get(), request.getMethodName(), request.getParameters());
-                    response = new Response()
-                        .setId(request.getId())
-                        .setSuccess(true)
-                        .setResult(result);
+                    response = callService(service.get(), request);
                 } catch (Exception e) {
                     logger.warn("Error executing service method", e);
                     response = new Response()
@@ -55,12 +52,11 @@ class ServiceCaller {
         }
     }
 
-    private Object processServiceCall(Service service, String methodName, Object[] parameters) throws InvocationTargetException, IllegalAccessException, ServiceException {
-        Class[] parameterClasses = Stream.of(parameters)
-            .map(Object::getClass)
-            .toArray(Class[]::new);
-        Object target = service.getTarget();
+    private Response callService(Service service, Request request) throws InvocationTargetException, IllegalAccessException, ServiceException {
+        String methodName = request.getMethodName();
+        Object[] parameters = request.getParameters();
 
+        Object target = service.getTarget();
         boolean hasMethodWithSameName = Stream.of(target.getClass().getMethods())
             .anyMatch(method -> method.getName().equals(methodName));
         if (!hasMethodWithSameName) {
@@ -68,8 +64,22 @@ class ServiceCaller {
         }
 
         try {
+            Class[] parameterClasses = Stream.of(parameters)
+                .map(Object::getClass)
+                .toArray(Class[]::new);
             Method method = target.getClass().getMethod(methodName, parameterClasses);
-            return method.invoke(target, parameters);
+            Object result = method.invoke(target, parameters);
+
+            if (method.getReturnType().equals(Void.TYPE)) {
+                return new VoidResponse()
+                    .setId(request.getId())
+                    .setSuccess(true);
+            }
+            return new Response()
+                .setId(request.getId())
+                .setSuccess(true)
+                .setResult(result);
+
         } catch (NoSuchMethodException e) {
             throw new ServiceException("Method " + methodName + " with such signature not found");
         }

@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class Response implements Serializable {
     private Integer id;
-    private Boolean success;
+    private boolean success;
     private Throwable exception;
     private Object result;
 }
