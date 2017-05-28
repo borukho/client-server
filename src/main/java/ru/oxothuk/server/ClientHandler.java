@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ClientHandler implements Runnable, ResponseCallback {
     private static Logger logger = LogManager.getLogger(ClientHandler.class);
     private Socket socket;
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
     private ServiceCaller serviceCaller;
     private AtomicInteger requestCounter = new AtomicInteger();
     private boolean endOfSession;
@@ -49,7 +51,7 @@ public class ClientHandler implements Runnable, ResponseCallback {
 
     private Optional<Request> readRequest() {
         try {
-            ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
+            ObjectInputStream inputStream = getInputStream();
             Object o = inputStream.readObject();
             if (o instanceof Request) {
                 return Optional.of((Request) o);
@@ -62,11 +64,18 @@ public class ClientHandler implements Runnable, ResponseCallback {
         return Optional.empty();
     }
 
+    private synchronized ObjectInputStream getInputStream() throws IOException {
+        if (inputStream == null) {
+            inputStream = new ObjectInputStream(socket.getInputStream());
+        }
+        return inputStream;
+    }
+
     @Override
     public void callback(Response response) {
         try {
             logger.info("response: {}", response);
-            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+            ObjectOutputStream outputStream = getOutputStream();
             outputStream.reset();
             outputStream.writeObject(response);
             outputStream.flush();
@@ -76,6 +85,13 @@ public class ClientHandler implements Runnable, ResponseCallback {
             requestCounter.decrementAndGet();
             tryToCloseSocket();
         }
+    }
+
+    private synchronized ObjectOutputStream getOutputStream() throws IOException {
+        if (outputStream == null) {
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+        }
+        return outputStream;
     }
 
     private void tryToCloseSocket() {

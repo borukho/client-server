@@ -27,17 +27,16 @@ class ServiceCaller {
     }
 
     void call(Request request, ResponseCallback callback) {
-        logger.info("calling {}.{}({})", request.getServiceName(), request.getMethodName(), request.getParameters());
-        Optional<Service> service = serviceLocator.getServiceByName(request.getServiceName());
-        if (!service.isPresent()) {
-            callback.callback(new Response()
-                .setId(request.getId())
-                .setSuccess(false)
-                .setException(new ServiceException("Service " + request.getServiceName() + " not found"))
-            );
-        } else {
-            executor.submit(() -> {
-                Response response;
+        executor.submit(() -> {
+            Response response;
+            Optional<Service> service = serviceLocator.getServiceByName(request.getServiceName());
+            if (!service.isPresent()) {
+                callback.callback(new Response()
+                    .setId(request.getId())
+                    .setSuccess(false)
+                    .setException(new ServiceException("Service " + request.getServiceName() + " not found"))
+                );
+            } else {
                 try {
                     response = callService(service.get(), request);
                 } catch (Exception e) {
@@ -48,11 +47,12 @@ class ServiceCaller {
                         .setException(e);
                 }
                 callback.callback(response);
-            });
-        }
+            }
+        });
     }
 
     private Response callService(Service service, Request request) throws InvocationTargetException, IllegalAccessException, ServiceException {
+        logger.info("calling {}.{}({})", request.getServiceName(), request.getMethodName(), request.getParameters());
         String methodName = request.getMethodName();
         Object[] parameters = request.getParameters();
 

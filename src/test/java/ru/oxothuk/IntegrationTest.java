@@ -23,6 +23,7 @@ public class IntegrationTest {
     private static final String SERVICE_NAME = "echoService";
     private static final String ECHO = "echo";
     private static final String LOG = "log";
+    private static final String WAIT_AND_ECHO = "waitAndEcho";
 
     private static Server server;
 
@@ -59,7 +60,7 @@ public class IntegrationTest {
 
     @Test
     public void testSeveralRequestsOnOneClient() throws Exception {
-        int THREADS_COUNT = 2;
+        int THREADS_COUNT = 10;
 
         Map<String, Object> results = new HashMap<>();
         try (Client client = new Client("localhost", 9119)) {
@@ -80,10 +81,10 @@ public class IntegrationTest {
             latch.await();
         }
 
-        assertThat(results.values(), allOf(
-            hasItem(equalTo("client-1")),
-            hasItem(equalTo("client-2"))
-        ));
+        IntStream.rangeClosed(1, THREADS_COUNT).forEach(i -> {
+            String id = "client-" + i;
+            assertThat(results.get(id), is(equalTo("client-" + i)));
+        });
     }
 
     @Test
@@ -131,4 +132,33 @@ public class IntegrationTest {
 
         assertThat(result, is(instanceOf(VoidResult.class)));
     }
+
+    @Test
+    public void testSeveralClients() throws Exception {
+        int CLIENTS_COUNT = 10;
+
+        Map<String, Object> results = new HashMap<>();
+        CountDownLatch latch = new CountDownLatch(CLIENTS_COUNT);
+        IntStream.rangeClosed(1, CLIENTS_COUNT).forEach(i -> {
+            String id = "client-" + i;
+            Thread thread = new Thread(() -> {
+                try (Client client = new Client("localhost", 9119)) {
+                    long waitTime = 100L * (CLIENTS_COUNT - i);
+                    results.put(id, client.remoteCall(SERVICE_NAME, WAIT_AND_ECHO, new Object[]{waitTime, id}));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    latch.countDown();
+                }
+            }, id);
+            thread.start();
+        });
+        latch.await();
+
+        IntStream.rangeClosed(1, CLIENTS_COUNT).forEach(i -> {
+            String id = "client-" + i;
+            assertThat(results.get(id), is(equalTo("client-" + i)));
+        });
+    }
+
 }
