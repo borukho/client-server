@@ -1,4 +1,4 @@
-package ru.oxothuk.server;
+package ru.oxothuk.service;
 
 class ServiceException extends Exception {
     ServiceException(String message) {

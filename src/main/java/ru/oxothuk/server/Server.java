@@ -3,6 +3,7 @@ package ru.oxothuk.server;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.oxothuk.service.Service;
+import ru.oxothuk.service.ServiceCaller;
 import ru.oxothuk.service.ServiceConfiguration;
 import ru.oxothuk.service.ServiceLocator;
 

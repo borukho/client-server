@@ -1,12 +1,11 @@
-package ru.oxothuk.server;
+package ru.oxothuk.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.oxothuk.model.Request;
 import ru.oxothuk.model.Response;
 import ru.oxothuk.model.VoidResponse;
-import ru.oxothuk.service.Service;
-import ru.oxothuk.service.ServiceLocator;
+import ru.oxothuk.server.ResponseCallback;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,18 +14,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
-class ServiceCaller {
+public class ServiceCaller {
     private static Logger logger = LogManager.getLogger(ServiceCaller.class);
     private static final int THREAD_COUNT = 2;
     private ExecutorService executor;
     private ServiceLocator serviceLocator;
 
-    ServiceCaller(ServiceLocator serviceLocator) {
+    public ServiceCaller(ServiceLocator serviceLocator) {
         this.serviceLocator = serviceLocator;
         this.executor = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
-    void call(Request request, ResponseCallback callback) {
+    public void call(Request request, ResponseCallback callback) {
         executor.submit(() -> {
             Response response;
             Optional<Service> service = serviceLocator.getServiceByName(request.getServiceName());
@@ -85,7 +84,7 @@ class ServiceCaller {
         }
     }
 
-    void shutdown() {
+    public void shutdown() {
         executor.shutdownNow();
     }
 }
