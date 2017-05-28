@@ -1,4 +1,4 @@
-package ru.oxothuk.client;
+package ru.oxothuk.model;
 
 import lombok.ToString;
 

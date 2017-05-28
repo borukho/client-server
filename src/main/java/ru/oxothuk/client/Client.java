@@ -2,6 +2,9 @@ package ru.oxothuk.client;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.oxothuk.model.EndSessionRequest;
+import ru.oxothuk.model.Request;
+import ru.oxothuk.model.Response;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

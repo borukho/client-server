@@ -4,7 +4,7 @@ import org.junit.*;
 import org.junit.rules.ExpectedException;
 import ru.oxothuk.client.Client;
 import ru.oxothuk.client.ClientException;
-import ru.oxothuk.client.VoidResult;
+import ru.oxothuk.model.VoidResult;
 import ru.oxothuk.server.Server;
 import ru.oxothuk.server.ServerConfiguration;
 import ru.oxothuk.service.ServiceConfiguration;
