@@ -1,11 +1,11 @@
 package ru.oxothuk.client;
 
-public class ClientException extends Throwable {
-    public ClientException(String message) {
+public class ClientException extends Exception {
+    ClientException(String message) {
         super(message);
     }
 
-    public ClientException(Throwable cause) {
+    ClientException(Throwable cause) {
         super(cause);
     }
 }

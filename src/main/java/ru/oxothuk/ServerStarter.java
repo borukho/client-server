@@ -25,11 +25,11 @@ public class ServerStarter {
             ServerConfiguration serverConfiguration = new ServerConfiguration()
                 .setPort(Integer.parseInt(commandLine.getOptionValue("port")))
                 .setServiceConfigurations(loadServiceConfigurations(commandLine.getOptionValue("services-config")));
-            new Server(serverConfiguration).start();
+            new Server(serverConfiguration).start(false);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
             printCommandLineArgumentsHelp(options);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             System.out.println(e.getMessage());
         }
     }

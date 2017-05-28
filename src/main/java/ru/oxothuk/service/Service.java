@@ -1,7 +1,10 @@
 package ru.oxothuk.service;
 
+import lombok.Getter;
+
 public class Service {
     private ServiceConfiguration configuration;
+    @Getter
     private final Object target;
 
     public Service(ServiceConfiguration configuration) {

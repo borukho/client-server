@@ -59,11 +59,12 @@ class ServiceCaller {
         Class[] parameterClasses = Stream.of(parameters)
             .map(Object::getClass)
             .toArray(Class[]::new);
-        Method method = service.getClass().getMethod(methodName, parameterClasses);
-        return method.invoke(service, parameters);
+        Object target = service.getTarget();
+        Method method = target.getClass().getMethod(methodName, parameterClasses);
+        return method.invoke(target, parameters);
     }
 
     void shutdown() {
-        executor.shutdown();
+        executor.shutdownNow();
     }
 }
