@@ -12,10 +12,10 @@ import java.io.Serializable;
 @ToString
 @Accessors(chain = true)
 public class Response implements Serializable {
-    private static final long serialVersionUID = -7812063207400096667L;
+    private static final long serialVersionUID = -4864012918432335074L;
 
     private Integer id;
-    private boolean success;
+    private Boolean success;
     private Throwable exception;
     private Object result;
 }

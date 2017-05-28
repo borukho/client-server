@@ -104,7 +104,7 @@ public class Client implements AutoCloseable {
 
     private Object getRequestResult(Response response) throws ClientException {
         logger.info("response: {}", response);
-        if (!response.isSuccess()) {
+        if (response.getSuccess() == null || !response.getSuccess()) {
             Throwable cause = response.getException();
             if (cause != null) {
                 throw new ClientException(cause);
