@@ -59,7 +59,7 @@ public class IntegrationTest {
 
     @Test
     public void testSeveralRequestsOnOneClient() throws Exception {
-        int THREADS_COUNT = 50;
+        int THREADS_COUNT = 20;
 
         Map<String, Object> results = new HashMap<>();
         try (Client client = new Client("localhost", 9119)) {

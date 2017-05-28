@@ -12,6 +12,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientHandler implements Runnable, ResponseCallback {
     private static Logger logger = LogManager.getLogger(ClientHandler.class);
@@ -21,6 +23,7 @@ public class ClientHandler implements Runnable, ResponseCallback {
     private ServiceCaller serviceCaller;
     private AtomicInteger requestCounter = new AtomicInteger();
     private boolean endOfSession;
+    private final Lock writeLock = new ReentrantLock();
 
     ClientHandler(Socket socket, ServiceCaller serviceCaller) {
         this.socket = socket;
@@ -74,6 +77,7 @@ public class ClientHandler implements Runnable, ResponseCallback {
     @Override
     public void callback(Response response) {
         try {
+            writeLock.lock();
             logger.info("response: {}", response);
             ObjectOutputStream outputStream = getOutputStream();
             outputStream.writeObject(response);
@@ -81,6 +85,7 @@ public class ClientHandler implements Runnable, ResponseCallback {
         } catch (IOException e) {
             logger.warn("error writing response", e);
         } finally {
+            writeLock.unlock();
             requestCounter.decrementAndGet();
             tryToCloseSocket();
         }

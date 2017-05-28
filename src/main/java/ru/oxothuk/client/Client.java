@@ -76,10 +76,11 @@ public class Client implements AutoCloseable {
             Object o = getInputStream().readObject();
             if (o instanceof Response) {
                 Response response = (Response) o;
-                BlockingQueue<Response> queue = this.responses.get(response.getId());
+                logger.debug("got response: {}", response);
+                BlockingQueue<Response> queue = responses.get(response.getId());
                 if (queue != null) queue.add(response);
             } else {
-                throw new ClientException("unknown response");
+                throw new ClientException("unknown response: " + o);
             }
         } catch (ClassNotFoundException e) {
             throw new ClientException("unknown response");
