@@ -1,4 +1,4 @@
-package ru.oxothuk.server;
+package ru.oxothuk.service;
 
 import ru.oxothuk.model.Response;
 

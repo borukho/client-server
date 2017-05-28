@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import ru.oxothuk.model.Request;
 import ru.oxothuk.model.Response;
 import ru.oxothuk.model.VoidResponse;
-import ru.oxothuk.server.ResponseCallback;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

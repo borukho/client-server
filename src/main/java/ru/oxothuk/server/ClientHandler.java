@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import ru.oxothuk.model.EndSessionRequest;
 import ru.oxothuk.model.Request;
 import ru.oxothuk.model.Response;
+import ru.oxothuk.service.ResponseCallback;
 import ru.oxothuk.service.ServiceCaller;
 
 import java.io.IOException;
