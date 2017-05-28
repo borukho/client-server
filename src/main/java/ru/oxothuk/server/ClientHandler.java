@@ -2,6 +2,7 @@ package ru.oxothuk.server;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.oxothuk.client.EndSessionRequest;
 import ru.oxothuk.client.Request;
 import ru.oxothuk.client.Response;
 
@@ -16,7 +17,7 @@ public class ClientHandler implements Runnable, ResponseCallback {
     private Socket socket;
     private ServiceCaller serviceCaller;
 
-    public ClientHandler(Socket socket, ServiceCaller serviceCaller) {
+    ClientHandler(Socket socket, ServiceCaller serviceCaller) {
         this.socket = socket;
         this.serviceCaller = serviceCaller;
     }
@@ -37,7 +38,6 @@ public class ClientHandler implements Runnable, ResponseCallback {
             }
         } finally {
             logger.info("session with {} completed", socket.getInetAddress());
-            close(socket);
         }
     }
 
@@ -47,6 +47,8 @@ public class ClientHandler implements Runnable, ResponseCallback {
             Object o = inputStream.readObject();
             if (o instanceof Request) {
                 return Optional.of((Request) o);
+            } else if (o instanceof EndSessionRequest) {
+                return Optional.empty();
             }
         } catch (IOException | ClassNotFoundException e) {
             logger.warn("error getting request", e);
@@ -58,6 +60,7 @@ public class ClientHandler implements Runnable, ResponseCallback {
     public void callback(Response response) {
         try {
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+            outputStream.reset();
             outputStream.writeObject(response);
             outputStream.flush();
         } catch (IOException e) {
@@ -67,6 +70,7 @@ public class ClientHandler implements Runnable, ResponseCallback {
 
     private void close(Socket socket) {
         try {
+            logger.info("closing socket: {}", socket);
             socket.close();
         } catch (IOException e) {
             logger.error("Error closing socket", e);

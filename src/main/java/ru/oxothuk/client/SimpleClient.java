@@ -3,19 +3,18 @@ package ru.oxothuk.client;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SimpleClient implements Client, Closeable {
+public class SimpleClient implements Client, AutoCloseable {
     private static Logger logger = LogManager.getLogger(SimpleClient.class);
     private final Socket socket;
     private static AtomicInteger counter = new AtomicInteger();
 
-    public SimpleClient(String hostname, int port) throws IOException {
+    SimpleClient(String hostname, int port) throws IOException {
         socket = new Socket(hostname, port);
     }
 
@@ -29,10 +28,12 @@ public class SimpleClient implements Client, Closeable {
         logger.info("request: {}", request);
         try {
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-            outputStream.writeObject(request
-            );
+            logger.debug("writing request");
+            outputStream.reset();
+            outputStream.writeObject(request);
             outputStream.flush();
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
+            logger.debug("reading response");
             Object o = inputStream.readObject();
             if (o instanceof Response) {
                 Response response = (Response) o;
@@ -58,6 +59,9 @@ public class SimpleClient implements Client, Closeable {
 
     @Override
     public void close() throws IOException {
+        ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+        outputStream.writeObject(new EndSessionRequest());
+        outputStream.flush();
         socket.close();
     }
 }
