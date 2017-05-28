@@ -7,12 +7,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Client implements AutoCloseable {
     private static Logger logger = LogManager.getLogger(Client.class);
+    private static final int TIMEOUT = 30000;
+
     private final Socket socket;
-    private static AtomicInteger counter = new AtomicInteger();
+    private final AtomicInteger counter = new AtomicInteger();
+    private final Lock lock = new ReentrantLock();
 
     public Client(String hostname, int port) throws IOException {
         socket = new Socket(hostname, port);
@@ -25,7 +31,12 @@ public class Client implements AutoCloseable {
             .setMethodName(methodName)
             .setParameters(parameters);
         logger.info("request: {}", request);
+        boolean locked = false;
         try {
+            locked = lock.tryLock(TIMEOUT, TimeUnit.MILLISECONDS);
+            if (!locked) {
+                throw new ClientException("resource await timeout reached");
+            }
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             logger.debug("writing request");
             outputStream.reset();
@@ -49,10 +60,14 @@ public class Client implements AutoCloseable {
             } else {
                 throw new ClientException("unknown response");
             }
-        } catch (IOException e) {
-            throw new ClientException(e);
         } catch (ClassNotFoundException e) {
             throw new ClientException("unknown response");
+        } catch (ClientException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ClientException(e);
+        } finally {
+            if (locked) lock.unlock();
         }
     }
 
