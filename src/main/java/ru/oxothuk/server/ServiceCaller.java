@@ -14,19 +14,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
-public class ServiceCaller {
+class ServiceCaller {
     private static Logger logger = LogManager.getLogger(ServiceCaller.class);
     private static final int THREAD_COUNT = 2;
     private ExecutorService executor;
     private ServiceLocator serviceLocator;
 
-    public ServiceCaller(ServiceLocator serviceLocator) {
+    ServiceCaller(ServiceLocator serviceLocator) {
         this.serviceLocator = serviceLocator;
         this.executor = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
-    public void call(Request request, ResponseCallback callback) {
-        logger.info("request: {}", request);
+    void call(Request request, ResponseCallback callback) {
+        logger.info("calling {}.{}({})", request.getServiceName(), request.getMethodName(), request.getParameters());
         Optional<Service> service = serviceLocator.getServiceByName(request.getServiceName());
         if (!service.isPresent()) {
             callback.callback(new Response()
@@ -50,7 +50,6 @@ public class ServiceCaller {
                         .setSuccess(false)
                         .setException(e);
                 }
-                logger.info("response: {}", response);
                 callback.callback(response);
             });
         }
@@ -64,7 +63,7 @@ public class ServiceCaller {
         return method.invoke(service, parameters);
     }
 
-    public void shutdown() {
+    void shutdown() {
         executor.shutdown();
     }
 }
