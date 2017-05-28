@@ -32,7 +32,7 @@ class ServiceCaller {
             callback.callback(new Response()
                 .setId(request.getId())
                 .setSuccess(false)
-                .setException(new Exception("Service " + request.getServiceName() + " not found"))
+                .setException(new ServiceException("Service " + request.getServiceName() + " not found"))
             );
         } else {
             executor.submit(() -> {
@@ -55,13 +55,24 @@ class ServiceCaller {
         }
     }
 
-    private Object processServiceCall(Service service, String methodName, Object[] parameters) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private Object processServiceCall(Service service, String methodName, Object[] parameters) throws InvocationTargetException, IllegalAccessException, ServiceException {
         Class[] parameterClasses = Stream.of(parameters)
             .map(Object::getClass)
             .toArray(Class[]::new);
         Object target = service.getTarget();
-        Method method = target.getClass().getMethod(methodName, parameterClasses);
-        return method.invoke(target, parameters);
+
+        boolean hasMethodWithSameName = Stream.of(target.getClass().getMethods())
+            .anyMatch(method -> method.getName().equals(methodName));
+        if (!hasMethodWithSameName) {
+            throw new ServiceException("Method " + methodName + " not found");
+        }
+
+        try {
+            Method method = target.getClass().getMethod(methodName, parameterClasses);
+            return method.invoke(target, parameters);
+        } catch (NoSuchMethodException e) {
+            throw new ServiceException("Method " + methodName + " with such signature not found");
+        }
     }
 
     void shutdown() {

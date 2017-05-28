@@ -6,6 +6,6 @@ public class ClientException extends Exception {
     }
 
     ClientException(Throwable cause) {
-        super(cause);
+        super(cause.getMessage(), cause);
     }
 }
