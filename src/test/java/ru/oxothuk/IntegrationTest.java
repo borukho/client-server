@@ -23,7 +23,6 @@ public class IntegrationTest {
     private static final String SERVICE_NAME = "echoService";
     private static final String ECHO = "echo";
     private static final String LOG = "log";
-    private static final String WAIT_AND_ECHO = "waitAndEcho";
 
     private static Server server;
 
@@ -60,7 +59,7 @@ public class IntegrationTest {
 
     @Test
     public void testSeveralRequestsOnOneClient() throws Exception {
-        int THREADS_COUNT = 10;
+        int THREADS_COUNT = 50;
 
         Map<String, Object> results = new HashMap<>();
         try (Client client = new Client("localhost", 9119)) {
@@ -143,8 +142,7 @@ public class IntegrationTest {
             String id = "client-" + i;
             Thread thread = new Thread(() -> {
                 try (Client client = new Client("localhost", 9119)) {
-                    long waitTime = 100L * (CLIENTS_COUNT - i);
-                    results.put(id, client.remoteCall(SERVICE_NAME, WAIT_AND_ECHO, new Object[]{waitTime, id}));
+                    results.put(id, client.remoteCall(SERVICE_NAME, ECHO, new Object[]{id}));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 } finally {

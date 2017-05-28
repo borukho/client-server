@@ -12,6 +12,8 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @ToString
 public class Request implements Serializable {
+    private static final long serialVersionUID = 8404332301010677214L;
+
     private Integer id;
     private String serviceName;
     private String methodName;

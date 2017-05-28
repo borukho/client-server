@@ -76,7 +76,6 @@ public class ClientHandler implements Runnable, ResponseCallback {
         try {
             logger.info("response: {}", response);
             ObjectOutputStream outputStream = getOutputStream();
-            outputStream.reset();
             outputStream.writeObject(response);
             outputStream.flush();
         } catch (IOException e) {

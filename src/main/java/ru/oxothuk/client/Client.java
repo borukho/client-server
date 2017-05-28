@@ -52,7 +52,6 @@ public class Client implements AutoCloseable {
             writeLock.lock();
             logger.debug("writing request");
             ObjectOutputStream outputStream = getOutputStream();
-            outputStream.reset();
             outputStream.writeObject(request);
             outputStream.flush();
             responses.put(request.getId(), new LinkedTransferQueue<>());
@@ -79,7 +78,8 @@ public class Client implements AutoCloseable {
             Object o = getInputStream().readObject();
             if (o instanceof Response) {
                 Response response = (Response) o;
-                responses.get(response.getId()).add(response);
+                BlockingQueue<Response> queue = this.responses.get(response.getId());
+                if (queue != null) queue.add(response);
             } else {
                 throw new ClientException("unknown response");
             }
@@ -132,12 +132,15 @@ public class Client implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
-        logger.debug("closing client");
+        logger.debug("close client");
         try {
+            writeLock.lock();
+            logger.debug("closing client");
             ObjectOutputStream outputStream = getOutputStream();
             outputStream.writeObject(new EndSessionRequest());
             outputStream.flush();
         } finally {
+            writeLock.unlock();
             socket.close();
         }
     }
