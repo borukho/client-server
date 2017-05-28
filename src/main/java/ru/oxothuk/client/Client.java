@@ -47,7 +47,6 @@ public class Client implements AutoCloseable {
     }
 
     private void writeRequest(Request request) throws ClientException {
-        logger.debug("write request");
         try {
             writeLock.lock();
             logger.debug("writing request");
@@ -71,7 +70,6 @@ public class Client implements AutoCloseable {
     }
 
     private void readResponse() throws ClientException {
-        logger.debug("read response");
         try {
             readLock.lock();
             logger.debug("reading response");
@@ -132,7 +130,6 @@ public class Client implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
-        logger.debug("close client");
         try {
             writeLock.lock();
             logger.debug("closing client");
