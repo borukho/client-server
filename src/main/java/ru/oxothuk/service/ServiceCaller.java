@@ -6,12 +6,9 @@ import ru.oxothuk.model.Request;
 import ru.oxothuk.model.Response;
 import ru.oxothuk.model.VoidResponse;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Stream;
 
 public class ServiceCaller {
     private static Logger logger = LogManager.getLogger(ServiceCaller.class);
@@ -49,38 +46,21 @@ public class ServiceCaller {
         });
     }
 
-    private Response callService(Service service, Request request) throws InvocationTargetException, IllegalAccessException, ServiceException {
+    private Response callService(Service service, Request request) throws ServiceException {
         logger.info("calling {}.{}({})", request.getServiceName(), request.getMethodName(), request.getParameters());
         String methodName = request.getMethodName();
         Object[] parameters = request.getParameters();
-
-        Object target = service.getTarget();
-        boolean hasMethodWithSameName = Stream.of(target.getClass().getMethods())
-            .anyMatch(method -> method.getName().equals(methodName));
-        if (!hasMethodWithSameName) {
-            throw new ServiceException("Method " + methodName + " not found");
-        }
-
-        try {
-            Class[] parameterClasses = Stream.of(parameters)
-                .map(Object::getClass)
-                .toArray(Class[]::new);
-            Method method = target.getClass().getMethod(methodName, parameterClasses);
-            Object result = method.invoke(target, parameters);
-
-            if (method.getReturnType().equals(Void.TYPE)) {
-                return new VoidResponse()
-                    .setId(request.getId())
-                    .setSuccess(true);
-            }
-            return new Response()
+        ServiceCallResult serviceCallResult = service.call(methodName, parameters);
+        if (serviceCallResult.isVoid()) {
+            return new VoidResponse()
                 .setId(request.getId())
-                .setSuccess(true)
-                .setResult(result);
-
-        } catch (NoSuchMethodException e) {
-            throw new ServiceException("Method " + methodName + " with such signature not found");
+                .setSuccess(true);
         }
+        return new Response()
+            .setId(request.getId())
+            .setSuccess(true)
+            .setResult(serviceCallResult.getValue());
+
     }
 
     public void shutdown() {
