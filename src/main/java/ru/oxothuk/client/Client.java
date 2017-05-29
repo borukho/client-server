@@ -42,6 +42,7 @@ public class Client implements AutoCloseable {
             .setServiceName(serviceName)
             .setMethodName(methodName)
             .setParameters(parameters);
+        logger.info("request: {}", request);
 
         writeRequest(request);
         readResponse();
