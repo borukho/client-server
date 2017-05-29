@@ -6,8 +6,12 @@ Service configuration file (`conf/service.properties`) has format
 
 To run server use command:
 ```
-java -classpath client-server.jar ServerStarter --port 9119 --service-config conf/service.properties
+java -classpath client-server.jar ServerStarter --port 9119 --service-config conf/service.properties --service-caller-threads 5
 ```
+
+- `--port <port>` server port to use
+- `--service-config <file>` service configuration file location
+- `--service-caller-threads <threads count>` threads amount for service caller to use
 
 ## Implementation details
 Client implementation is `ru.oxothuk.client.Client`. It's thread-safe. 

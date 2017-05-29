@@ -14,5 +14,6 @@ import java.util.List;
 @ToString
 public class ServerConfiguration {
     private int port;
+    private int serviceCallerThreadCount;
     private List<ServiceConfiguration> serviceConfigurations;
 }

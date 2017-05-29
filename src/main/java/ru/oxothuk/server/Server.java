@@ -23,12 +23,13 @@ public class Server implements ServiceLocator, Runnable {
     private Map<String, Service> services;
     private AtomicInteger counter = new AtomicInteger();
     private boolean stop;
-    private ServiceCaller serviceCaller = new ServiceCaller(this);
+    private ServiceCaller serviceCaller;
     private CountDownLatch startedLatch = new CountDownLatch(1);
 
     public Server(ServerConfiguration configuration) {
         this.configuration = configuration;
         logger.info("Server configuration: {}", configuration);
+        serviceCaller = new ServiceCaller(this, configuration.getServiceCallerThreadCount());
         services = initServices();
     }
 

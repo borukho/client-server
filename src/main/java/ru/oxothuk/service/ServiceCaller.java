@@ -12,13 +12,12 @@ import java.util.concurrent.Executors;
 
 public class ServiceCaller {
     private static Logger logger = LogManager.getLogger(ServiceCaller.class);
-    private static final int THREAD_COUNT = 2;
     private ExecutorService executor;
     private ServiceLocator serviceLocator;
 
-    public ServiceCaller(ServiceLocator serviceLocator) {
+    public ServiceCaller(ServiceLocator serviceLocator, int threads) {
         this.serviceLocator = serviceLocator;
-        this.executor = Executors.newFixedThreadPool(THREAD_COUNT);
+        this.executor = Executors.newFixedThreadPool(Math.max(1, threads));
     }
 
     public void call(Request request, ResponseCallback callback) {

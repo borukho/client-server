@@ -24,6 +24,7 @@ public class ServerStarter {
             CommandLine commandLine = parseCommandLine(args, options);
             ServerConfiguration serverConfiguration = new ServerConfiguration()
                 .setPort(Integer.parseInt(commandLine.getOptionValue("port")))
+                .setServiceCallerThreadCount(Integer.parseInt(commandLine.getOptionValue("service-caller-threads", "1")))
                 .setServiceConfigurations(loadServiceConfigurations(commandLine.getOptionValue("services-config")));
             new Server(serverConfiguration).start(false);
         } catch (ParseException e) {
@@ -39,6 +40,10 @@ public class ServerStarter {
         options.addOption(Option.builder().longOpt("port").required()
             .hasArg().argName("port").type(Integer.class)
             .desc("server port")
+            .build());
+        options.addOption(Option.builder().longOpt("service-caller-threads").required()
+            .hasArg().argName("threads amount").type(Integer.class)
+            .desc("threads amount for service caller")
             .build());
         options.addOption(Option.builder().longOpt("services-config").required()
             .hasArg().argName("file")
