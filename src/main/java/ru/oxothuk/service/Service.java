@@ -26,7 +26,7 @@ public class Service {
         boolean hasMethodWithSameName = Stream.of(target.getClass().getMethods())
             .anyMatch(method -> method.getName().equals(methodName));
         if (!hasMethodWithSameName) {
-            throw new ServiceException("Method " + methodName + " not found");
+            throw new WrongMethodException("Method " + methodName + " not found");
         }
         try {
             Class[] parameterClasses = Stream.of(parameters)
@@ -37,7 +37,7 @@ public class Service {
             serviceCallResult.setVoid(method.getReturnType().equals(Void.TYPE));
             return serviceCallResult;
         } catch (NoSuchMethodException e) {
-            throw new ServiceException("Method " + methodName + " with such signature not found");
+            throw new WrongMethodException("Method " + methodName + " with such signature not found");
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new ServiceException(e.getMessage(), e);
         }

@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.oxothuk.model.Request;
 import ru.oxothuk.model.Response;
+import ru.oxothuk.service.WrongMethodException;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -109,6 +110,9 @@ public class Client implements AutoCloseable {
         if (response.getSuccess() == null || !response.getSuccess()) {
             Throwable cause = response.getException();
             if (cause != null) {
+                if (cause instanceof WrongMethodException) {
+                    throw new ClientMethodException(cause);
+                }
                 throw new ClientException(cause);
             } else {
                 throw new ClientException("unsuccessful response");

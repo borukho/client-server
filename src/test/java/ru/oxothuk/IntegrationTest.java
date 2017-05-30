@@ -4,6 +4,7 @@ import org.junit.*;
 import org.junit.rules.ExpectedException;
 import ru.oxothuk.client.Client;
 import ru.oxothuk.client.ClientException;
+import ru.oxothuk.client.ClientMethodException;
 import ru.oxothuk.model.VoidResult;
 import ru.oxothuk.server.Server;
 import ru.oxothuk.server.ServerConfiguration;
@@ -101,7 +102,7 @@ public class IntegrationTest {
     @Test
     public void testNoSuchMethodByName() throws Exception {
         exception.expect(allOf(
-            is(instanceOf(ClientException.class)),
+            is(instanceOf(ClientMethodException.class)),
             hasProperty("message", equalTo("Method notAnEcho not found"))
         ));
 
@@ -113,7 +114,7 @@ public class IntegrationTest {
     @Test
     public void testNoSuchMethodByParameters() throws Exception {
         exception.expect(allOf(
-            is(instanceOf(ClientException.class)),
+            is(instanceOf(ClientMethodException.class)),
             hasProperty("message", equalTo("Method echo with such signature not found"))
         ));
 

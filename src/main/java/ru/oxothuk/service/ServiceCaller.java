@@ -28,7 +28,7 @@ public class ServiceCaller {
                 callback.callback(new Response()
                     .setId(request.getId())
                     .setSuccess(false)
-                    .setException(new ServiceException("Service " + request.getServiceName() + " not found"))
+                    .setException(new WrongMethodException("Service " + request.getServiceName() + " not found"))
                 );
             } else {
                 try {
