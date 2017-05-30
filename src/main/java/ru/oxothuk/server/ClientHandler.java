@@ -2,12 +2,12 @@ package ru.oxothuk.server;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.oxothuk.model.EndSessionRequest;
 import ru.oxothuk.model.Request;
 import ru.oxothuk.model.Response;
 import ru.oxothuk.service.ResponseCallback;
 import ru.oxothuk.service.ServiceCaller;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -60,9 +60,9 @@ public class ClientHandler implements Runnable, ResponseCallback {
             Object o = inputStream.readObject();
             if (o instanceof Request) {
                 return Optional.of((Request) o);
-            } else if (o instanceof EndSessionRequest) {
-                return Optional.empty();
             }
+        } catch (EOFException e) {
+            return Optional.empty();
         } catch (IOException | ClassNotFoundException e) {
             logger.warn("error getting request", e);
         }

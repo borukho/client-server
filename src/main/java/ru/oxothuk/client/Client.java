@@ -2,7 +2,6 @@ package ru.oxothuk.client;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.oxothuk.model.EndSessionRequest;
 import ru.oxothuk.model.Request;
 import ru.oxothuk.model.Response;
 
@@ -135,15 +134,7 @@ public class Client implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
-        try {
-            writeLock.lock();
-            logger.debug("closing client");
-            ObjectOutputStream outputStream = getOutputStream();
-            outputStream.writeObject(new EndSessionRequest());
-            outputStream.flush();
-        } finally {
-            writeLock.unlock();
-            socket.close();
-        }
+        logger.debug("closing client");
+        socket.close();
     }
 }
