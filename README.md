@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/borukho/client-server.svg?branch=master)](https://travis-ci.org/borukho/client-server)
+
 ## Configuration
 Service configuration file (`conf/service.properties`) has format
 ```
